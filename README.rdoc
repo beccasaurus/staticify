@@ -3,9 +3,10 @@
 Staticify is a tool for creating static sites in Ruby.
 
 There are lots of tools out there already for creating static sites, eg:
- * Jekyll
- * StaticMatic
- * webgen
+ * Jekyll (http://jekyllrb.com)
+ * StaticMatic (http://staticmatic.rubyforge.org)
+ * webgen (http://webgen.rubyforge.org)
+ * Webby (http://webby.rubyforge.org)
 
 The problem with these tools, in my opinion, is that they make you code 
 your sites in a certain way.
