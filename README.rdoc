@@ -1,5 +1,22 @@
 = Staticify
 
+Staticify is a tool for creating static sites in Ruby.
+
+There are lots of tools out there already for creating static sites, eg:
+ * Jekyll
+ * StaticMatic
+ * webgen
+
+The problem with these tools, in my opinion, is that they make you code 
+your sites in a certain way.
+
+What if you want to code your blog in Rails or Sinatra or something?
+
+Staticify is intended to solve this problem for you.  If you want 
+to code your static site in any Rack-based web framework, go right ahead! 
+
+You can use Staticify to statically cache responses to your app.
+
 == Usage
 
 Simple script for staticifying your Rack applications
