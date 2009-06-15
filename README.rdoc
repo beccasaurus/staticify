@@ -3,10 +3,10 @@
 Staticify is a tool for creating static sites in Ruby.
 
 There are lots of tools out there already for creating static sites, eg:
- * Jekyll (http://jekyllrb.com)
- * StaticMatic (http://staticmatic.rubyforge.org)
- * webgen (http://webgen.rubyforge.org)
- * Webby (http://webby.rubyforge.org)
+Jekyll::       http://jekyllrb.com
+StaticMatic::  http://staticmatic.rubyforge.org
+webgen::       http://webgen.rubyforge.org
+Webby::        http://webby.rubyforge.org
 
 The problem with these tools, in my opinion, is that they make you code 
 your sites in a certain way.
@@ -17,6 +17,11 @@ Staticify is intended to solve this problem for you.  If you want
 to code your static site in any Rack-based web framework, go right ahead! 
 
 You can use Staticify to statically cache responses to your app.
+
+== Installation
+
+  $ gem sources -a http://gems.github.com
+  $ sudo gem install remi-rack-staticifier
 
 == Usage
 
