@@ -1,3 +1,27 @@
 = Staticify
 
-...
+== Usage
+
+Simple script for staticifying your Rack applications
+
+  staticify == %{ For staticifying your Rack applications }
+
+    Usage:
+      echo 'paths' | staticify      # print this usage information
+      echo 'paths' | staticify .    # staticify Rack app in current directory
+
+    Note:
+      staticify expects to get the paths to hit via STDIN
+
+    Options:
+      -d, --dir some/directory   # directory to save files to
+      -a, --app "MyApp.new"      # ruby to eval to get Rack app
+      -r, --require file[.rb]    # ruby file(s) to require
+
+== Notes
+
+Checks for config.ru / Rails by default, otherwise you can:
+
+  $ staticify -r myapp.rb --app 'lambda {|env| [200, {}, "hi!"] }' info
+  $ staticify -r myapp.rb,another-file.rb --app 'Sinatra::Application' get '/'
+  $ staticify -r myapp --app 'MyApp.new' '/'

@@ -2,7 +2,7 @@
 #
 # Simple script for staticifying your Rack applications
 #
-# Checks for config.ru / Rails by defualt, otherwise you can:
+# Checks for config.ru / Rails by default, otherwise you can:
 #
 #   $ staticify -r myapp.rb --app 'lambda {|env| [200, {}, "hi!"] }' info
 #   $ staticify -r myapp.rb,another-file.rb --app 'Sinatra::Application' get '/'
