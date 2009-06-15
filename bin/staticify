@@ -1,0 +1,95 @@
+#! /usr/bin/env ruby
+#
+# Simple script for staticifying your Rack applications
+#
+# Checks for config.ru / Rails by defualt, otherwise you can:
+#
+#   $ staticify -r myapp.rb --app 'lambda {|env| [200, {}, "hi!"] }' info
+#   $ staticify -r myapp.rb,another-file.rb --app 'Sinatra::Application' get '/'
+#   $ staticify -r myapp --app 'MyApp.new' '/'
+#
+%w( rubygems rackbox optparse fileutils rack-staticifier ).each {|lib| require lib }
+
+def usage
+  puts <<USAGE
+
+  staticify == %{ For staticifying your Rack applications }
+
+    Usage:
+      echo 'paths' | staticify      # print this usage information
+      echo 'paths' | staticify .    # staticify Rack app in current directory
+
+    Note:
+      staticify expects to get the paths to hit via STDIN
+
+    Options:
+      -d, --dir some/directory   # directory to save files to
+      -a, --app "MyApp.new"      # ruby to eval to get Rack app
+      -r, --require file[.rb]    # ruby file(s) to require
+
+USAGE
+end
+
+if ARGV.empty?
+  usage
+  exit
+end
+
+#### ==== Option Parsing ==== ####
+
+files_to_require = []
+ruby_to_run      = nil
+path_to_cache_to = '.site'
+
+opts = OptionParser.new do |opts|
+  opts.on('-r', '--require [file]') {|x| files_to_require << x }
+  opts.on('-a', '--app [ruby]')     {|x| ruby_to_run = x       }
+  opts.on('-d', '--dir [dir]')      {|x| path_to_cache_to = x  }
+end
+opts.parse! ARGV
+
+app_directory = ARGV.shift
+unless File.directory? app_directory
+   puts "App directory not found: #{ app_directory }\n\n"
+   usage
+   exit
+end
+FileUtils.cd app_directory
+
+files_to_require.each {|file| require file }
+if ruby_to_run
+  begin
+    RackBox.app = eval(ruby_to_run)
+  rescue Exception => ex
+    puts "Tried running Ruby code to set Rack app: #{ ruby_to_run.inspect }"
+    raise ex
+  end
+end
+
+unless RackBox.app(:silent => true)
+  puts "Cannot find your Rack application\n\n"
+  usage
+  exit
+end
+
+#### ==== Get Routes to Cache ==== ####
+
+paths_to_cache = []
+while path = gets
+  paths_to_cache << path.strip
+end
+
+puts "Caching to #{ path_to_cache_to }"
+
+puts "#{ paths_to_cache.length } paths to cache:"
+
+#### ==== Cache the Routes ==== ####"
+
+FileUtils.rm_rf path_to_cache_to
+
+RackBox.app = Rack::Staticifier.new(RackBox.app, :root => path_to_cache_to)
+
+paths_to_cache.each do |path|
+  response = RackBox.request path
+  puts "  #{ response.status }  #{ path }"
+end
