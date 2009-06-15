@@ -26,6 +26,9 @@ def usage
       -d, --dir some/directory   # directory to save files to
       -a, --app "MyApp.new"      # ruby to eval to get Rack app
       -r, --require file[.rb]    # ruby file(s) to require
+      -p, --paths "/,/foo,/bar"  # specify paths (instead of STDIN)
+      -y, --dry-run              # just print what we *would* do
+      -s, --save                 # don't delete dir before running
 
 USAGE
 end
@@ -37,14 +40,20 @@ end
 
 #### ==== Option Parsing ==== ####
 
-files_to_require = []
-ruby_to_run      = nil
-path_to_cache_to = '.site'
+files_to_require  = []
+ruby_to_run       = nil
+path_to_cache_to  = '.site'
+paths_to_cache    = []
+dry_run           = false
+overwrite_dir     = true
 
 opts = OptionParser.new do |opts|
-  opts.on('-r', '--require [file]') {|x| files_to_require << x }
-  opts.on('-a', '--app [ruby]')     {|x| ruby_to_run = x       }
-  opts.on('-d', '--dir [dir]')      {|x| path_to_cache_to = x  }
+  opts.on('-r', '--require [file]') {|x| files_to_require << x            }
+  opts.on('-a', '--app [ruby]')     {|x| ruby_to_run       = x            }
+  opts.on('-d', '--dir [dir]')      {|x| path_to_cache_to  = x            }
+  opts.on('-p', '--paths [paths]')  {|x| paths_to_cache    = x.split(',') }
+  opts.on('-y', '--dry-run')        {    dry_run           = true         }
+  opts.on('-s', '--save')           {    overwrite_dir     = false        }
 end
 opts.parse! ARGV
 
@@ -74,9 +83,10 @@ end
 
 #### ==== Get Routes to Cache ==== ####
 
-paths_to_cache = []
-while path = gets
-  paths_to_cache << path.strip
+if paths_to_cache.empty?
+  while path = gets
+    paths_to_cache << path.strip
+  end
 end
 
 puts "Caching to #{ path_to_cache_to }"
@@ -85,11 +95,16 @@ puts "#{ paths_to_cache.length } paths to cache:"
 
 #### ==== Cache the Routes ==== ####"
 
-FileUtils.rm_rf path_to_cache_to
+puts "rm -rf #{ path_to_cache_to }" if overwrite_dir
+FileUtils.rm_rf path_to_cache_to if overwrite_dir && !dry_run
 
 RackBox.app = Rack::Staticifier.new(RackBox.app, :root => path_to_cache_to)
 
 paths_to_cache.each do |path|
-  response = RackBox.request path
-  puts "  #{ response.status }  #{ path }"
+  if dry_run
+    puts "  #{ path }"
+  else
+    response = RackBox.request path
+    puts "  #{ response.status }  #{ path }"
+  end
 end
