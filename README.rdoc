@@ -21,7 +21,7 @@ You can use Staticify to statically cache responses to your app.
 == Installation
 
   $ gem sources -a http://gems.github.com
-  $ sudo gem install remi-rack-staticifier
+  $ sudo gem install remi-staticify
 
 == Usage
 
